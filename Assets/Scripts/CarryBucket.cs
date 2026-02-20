@@ -19,7 +19,17 @@ public class CarryBucket : MonoBehaviour
 
     public void Empty()
     {
-        IsFull = false; // Τώρα το σύστημα ΞΕΡΕΙ ότι άδειασε
-        if (waterVisual != null) waterVisual.SetActive(false);
+        // Μόνο αν είναι γεμάτος ο κουβάς δίνουμε πόντο στο Quest
+        if (IsFull)
+        {
+            IsFull = false;
+            if (waterVisual != null) waterVisual.SetActive(false);
+
+            // ΕΔΩ ΕΙΝΑΙ Η ΣΩΣΤΗ ΘΕΣΗ (Μέσα στις αγκύλες της Empty)
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.AddBucket();
+            }
+        }
     }
 }
