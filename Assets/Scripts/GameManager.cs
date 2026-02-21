@@ -6,38 +6,36 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance; 
 
     [Header("Quest Settings")]
-    public TMP_Text questText;       // Εδώ θα βάλουμε το UI Κείμενο
-    public GameObject fireVFX;       // Εδώ θα βάλουμε το εφέ της φωτιάς
-    
-    private int bucketsFilled = 0;   // Μετράει πόσοι κουβάδες γέμισαν
+    public TMP_Text questText;       // το κείμενο του quest
+    public GameObject fireVFX;       // το εφέ φωτιάς
+
+    private int bucketsFilled = 0;   // πόσοι κουβάδες έχουν δοθεί
 
     void Awake()
     {
-        Instance = this; 
+        Instance = this;
     }
 
     void Start()
     {
-        // Μόλις ξεκινάει το παιχνίδι, η φωτιά είναι ΣΒΗΣΤΗ
         if (fireVFX != null)
         {
-            fireVFX.SetActive(false); 
+            fireVFX.SetActive(false); // η φωτιά ξεκινάει σβηστή
         }
-        UpdateQuestText();
+
+        UpdateQuestText(); // αρχικό update
     }
 
-    // Αυτή η συνάρτηση θα καλείται κάθε φορά που γεμίζεις έναν κουβά
     public void AddBucket()
     {
         if (bucketsFilled < 4)
         {
             bucketsFilled++; 
-            UpdateQuestText(); // Ανανεώνει το κείμενο (π.χ. 1/4, 2/4)
+            UpdateQuestText(); // ανανεώνει το ui
 
-            // Αν φτάσαμε τους 4 κουβάδες, ανάβει η φωτιά αυτόματα!
             if (bucketsFilled >= 4)
             {
-                CompleteQuest();
+                CompleteQuest(); // μόλις γίνουν 4
             }
         }
     }
@@ -52,17 +50,13 @@ public class GameManager : MonoBehaviour
 
     void CompleteQuest()
     {
-        // 1. Εμφανίζει (ανάβει) τη φωτιά
         if (fireVFX != null)
         {
-            fireVFX.SetActive(true); 
+            fireVFX.SetActive(true); // ανάβει η φωτιά
         }
-        
-        // 2. Αλλάζει το μήνυμα επιτυχίας
-        if (questText != null)
-        {
-            questText.text = "Quest Completed: The village fire is lit!";
-            questText.color = Color.green; // Το κάνει πράσινο για επιβράβευση
-        }
+
+        if (questText == null) return;
+        questText.text = "Quest Completed: The village fire is lit!";
+        questText.color = Color.green;
     }
 }

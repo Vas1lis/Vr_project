@@ -2,34 +2,46 @@ using UnityEngine;
 
 public class CarryBucket : MonoBehaviour
 {
-    public bool IsFull = false; // Ο διακόπτης που έλειπε!
+    public bool IsFull = false;
     public GameObject waterVisual;
 
     void Start()
     {
-        IsFull = false;
-        if (waterVisual != null) waterVisual.SetActive(false);
+        IsFull = false; // ξεκινάει άδειος
+
+        if (waterVisual != null)
+        {
+            waterVisual.SetActive(false); // κρύβουμε το νερό στην αρχή
+        }
     }
 
     public void Fill()
     {
-        IsFull = true; // Τώρα το σύστημα ΞΕΡΕΙ ότι γέμισε
-        if (waterVisual != null) waterVisual.SetActive(true);
+        if (IsFull) return; // αν είναι ήδη γεμάτος
+
+        IsFull = true;
+
+        if (waterVisual != null)
+        {
+            waterVisual.SetActive(true); // δείχνουμε το νερό
+        }
     }
 
     public void Empty()
     {
-        // Μόνο αν είναι γεμάτος ο κουβάς δίνουμε πόντο στο Quest
-        if (IsFull)
-        {
-            IsFull = false;
-            if (waterVisual != null) waterVisual.SetActive(false);
+        if (!IsFull) return; // αν είναι άδειος δεν κάνουμε κάτι
 
-            // ΕΔΩ ΕΙΝΑΙ Η ΣΩΣΤΗ ΘΕΣΗ (Μέσα στις αγκύλες της Empty)
-            if (GameManager.Instance != null)
-            {
-                GameManager.Instance.AddBucket();
-            }
+        IsFull = false;
+
+        if (waterVisual != null)
+        {
+            waterVisual.SetActive(false); // κρύβουμε το νερό
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.AddBucket(); // δίνουμε πόντο στο quest
         }
     }
+
 }

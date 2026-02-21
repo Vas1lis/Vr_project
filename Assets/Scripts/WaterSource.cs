@@ -3,22 +3,21 @@ using UnityEngine;
 public class WaterSource : MonoBehaviour
 {
     [Header("Prompt")]
-    public string promptMessage = "Press E to fill";
+    public string promptMessage = "Press E to fill"; // μήνυμα που δείχνει
 
     private void OnTriggerStay(Collider other)
     {
-        // Ψάχνουμε στα παιδιά (εκεί είναι ο PlayerBucket)
+
         var bucket = other.GetComponentInChildren<CarryBucket>();
         if (bucket == null) return;
 
-        // Αν ο κουβάς σου είναι ΗΔΗ γεμάτος
         if (bucket.IsFull)
         {
-            PromptUI.Show("Your bucket is already full!");
+            PromptUI.Show("Your bucket is already full!"); // αν είναι γεμάτος
         }
-        else // Αν είναι άδειος
+        else
         {
-            PromptUI.Show(promptMessage); // Εμφανίζει το "Press E to fill"
+            PromptUI.Show(promptMessage); // δείχνει το βασικό μήνυμα
 
             if (Input.GetKeyDown(KeyCode.E))
             {
@@ -32,6 +31,7 @@ public class WaterSource : MonoBehaviour
         var bucket = other.GetComponentInChildren<CarryBucket>();
         if (bucket == null) return;
 
-        PromptUI.Hide(); // Κρύβει το μήνυμα όταν φεύγεις
+        PromptUI.Hide();
     }
+
 }

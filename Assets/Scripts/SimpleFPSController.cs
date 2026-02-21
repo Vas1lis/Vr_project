@@ -1,55 +1,102 @@
 using UnityEngine;
 
 [RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(AudioSource))] // βάζει audio source αυτόματα
 public class SimpleFPSController : MonoBehaviour
 {
-    public float speed = 6f;
-    public float mouseSensitivity = 200f;
-    public float gravity = -9.81f;
+[Header("Movement Settings")]
+public float walkSpeed = 5f;
+public float sprintSpeed = 9f; // ταχύτητα με shift
+public float mouseSensitivity = 200f;
+public float gravity = -9.81f;
 
-    public Transform cameraHolder;   // θα βάλουμε εδώ τη Main Camera
+[Header("References")]
+public Transform cameraHolder; // το holder της κάμερας
 
-    private CharacterController controller;
-    private float yVelocity;
-    private float xRotation = 0f;
+[Header("Footstep Sounds")]
+public AudioClip[] footstepSounds; // ήχοι βημάτων
+public float baseStepInterval = 0.5f; // βασικό διάστημα βήματος
+private float stepTimer;
+private AudioSource audioSource;
 
-    void Start()
+private CharacterController controller;
+private float yVelocity;
+private float xRotation = 0f;
+
+void Start()
+{
+    controller = GetComponent<CharacterController>();
+    audioSource = GetComponent<AudioSource>();
+
+    Cursor.lockState = CursorLockMode.Locked; // κλειδώνει το mouse
+}
+
+void Update()
+{
+    Move();
+    Look();
+}
+
+void Move()
+{
+    float x = Input.GetAxis("Horizontal");
+    float z = Input.GetAxis("Vertical");
+    
+    bool isSprinting = Input.GetKey(KeyCode.LeftShift);
+    float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+
+    Vector3 move = transform.right * x + transform.forward * z;
+    
+    if (controller.isGrounded && yVelocity < 0)
+        yVelocity = -2f;
+
+    yVelocity += gravity * Time.deltaTime;
+
+    Vector3 finalMovement = move * currentSpeed;
+    finalMovement.y = yVelocity;
+
+    controller.Move(finalMovement * Time.deltaTime);
+    
+    HandleFootsteps(x, z, currentSpeed);
+}
+
+void HandleFootsteps(float x, float z, float currentSpeed)
+{
+    if (controller.isGrounded && (Mathf.Abs(x) > 0.1f || Mathf.Abs(z) > 0.1f))
     {
-        controller = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked;
-    }
+        stepTimer -= Time.deltaTime;
 
-    void Update()
+        if (stepTimer <= 0f)
+        {
+            PlayFootstepSound();
+            
+            stepTimer = baseStepInterval * (walkSpeed / currentSpeed);
+        }
+    }
+    else
     {
-        Move();
-        Look();
+        stepTimer = 0f; 
     }
+}
 
-    void Move()
-    {
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+void PlayFootstepSound()
+{
+    // random για να μην είναι ίδιο συνέχεια
+    if (footstepSounds.Length <= 0) return;
+    int randomIndex = Random.Range(0, footstepSounds.Length);
+    audioSource.PlayOneShot(footstepSounds[randomIndex]);
+}
 
-        Vector3 move = transform.right * x + transform.forward * z;
+void Look()
+{
+    float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+    float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
 
-        if (controller.isGrounded && yVelocity < 0)
-            yVelocity = -2f;
+    xRotation -= mouseY;
+    xRotation = Mathf.Clamp(xRotation, -80f, 80f);
 
-        yVelocity += gravity * Time.deltaTime;
-        move.y = yVelocity;
+    cameraHolder.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+    transform.Rotate(Vector3.up * mouseX);
+}
 
-        controller.Move(move * speed * Time.deltaTime);
-    }
-
-    void Look()
-    {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-
-        xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -80f, 80f);
-
-        cameraHolder.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * mouseX);
-    }
 }
